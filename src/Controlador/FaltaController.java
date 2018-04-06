@@ -6,6 +6,7 @@ import SQLConnection.Database;
 import SQLConnection.DatabaseFactory;
 import SQLInsertion.AlunoSQL;
 import SQLInsertion.FaltaSQL;
+import java.util.Iterator;
 
 import SQLInsertion.MateriaSQL;
 import java.time.LocalDate;
@@ -16,13 +17,18 @@ import Controlador.AlunoController;
 import Controlador.MateriaController;
 
 import Classes.FaltaDomain;
+import Classes.MateriaDomain;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FaltaController implements FaltaView {
     private final FaltaDomain falta = new FaltaDomain();
     private final AlunoDomain aluno = new AlunoDomain();
+    private final MateriaDomain materia = new MateriaDomain();
 
     private final AlunoSQL alunoSQL = new AlunoSQL();
     private final FaltaSQL faltaSQL = new FaltaSQL();
+    private final MateriaSQL materiaSQL = new MateriaSQL();
 
 
     private final Database database = DatabaseFactory.getDatabase("mysql");
@@ -81,56 +87,113 @@ public class FaltaController implements FaltaView {
         falta.setPresencas(scan.nextInt());
 
         faltaSQL.inserir(falta);
-        database.desconectar(connection);
     }
 
     @Override
     public void listarFaltasPesqAluno() {
         faltaSQL.setConnection(connection);
+        alunoSQL.setConnection(connection);
+        materiaSQL.setConnection(connection);
         
-        alunoSQL.listar().forEach((a) -> {
-            System.out.println("ID: " + a.getIdAluno());
-            System.out.println("Nome: " + a.getNome());
-        });
+        System.out.println("Insira a ID do aluno:");
+        falta.setIdAluno_Falta(scan.nextInt());
+             
+        aluno.setIdAluno(falta.getIdAluno_Falta());
         
-        database.desconectar(connection);
+        List<FaltaDomain> listaFaltas = new ArrayList();
+        listaFaltas = faltaSQL.buscarFaltaPorAluno(aluno); //temos todas as faltas do aluno
+        
+        
+        alunoSQL.buscar(aluno); //temos o aluno
+        
+        List<MateriaDomain> listaMaterias = new ArrayList();
+        listaMaterias = materiaSQL.listar(); //temos todas as materias
+        
+        //começando a mostrar dados
+        
+        System.out.println("Nome do aluno:");
+        System.out.println("--> " + aluno.getNome());
+        
+        for(MateriaDomain x: listaMaterias){
+            int faltasTotal = 0;
+            int presencasTotal = 0;
+            System.out.println("Matéria: " + x.getNomeMateria());
+            
+            for(FaltaDomain somador : listaFaltas)
+            {
+                if (somador.getIdMateria_Falta() == x.getIdMateria()){
+                    faltasTotal += somador.getFaltas();
+                    presencasTotal += somador.getPresencas();
+                }   
+            }
+            
+            System.out.println("Presenças: " + presencasTotal 
+                    + " /Faltas: " + faltasTotal);
+            
+            System.out.println("Horas No Curso: " + x.getHorasAula());
+            System.out.println("");
+            System.out.println("------------------------");
+         }        
     }
 
     @Override
     public void listarFaltasPesqMateria() {
-       /* alunoSQL.setConnection(connection);
+        faltaSQL.setConnection(connection);
+        alunoSQL.setConnection(connection);
+        materiaSQL.setConnection(connection);
         
-        System.out.println("Delete um ID: ");
-        aluno.setIdAluno(scan.nextInt());
-        alunoSQL.buscar(aluno);
+        System.out.println("Insira a ID da Matéria:");
+        materia.setIdMateria(scan.nextInt());
         
-        System.out.println("Apagar o aluno: " + aluno.getNome() + "?");
-        System.out.println("Y - Sim / N - Não");
-        String decisao = scan.next();
+        materiaSQL.buscar(materia); //dados da matéria obtidos
+        System.out.println("Matéria: " + materia.getNomeMateria());
         
-        if("Y".equals(decisao) || "y".equals(decisao)){
-            alunoSQL.remover(aluno);
-            System.out.println("Aluno apagado.");
-        }else if("N".equals(decisao) || "n".equals(decisao)){
-            System.out.println("Aluno não apagado.");
-        }else{
-            System.out.println("Comando Incorreto.");
-        }*/
+        List<AlunoDomain> listaAlunos = alunoSQL.listar();
+        List<FaltaDomain> listaFaltas = faltaSQL.buscarFaltaPorMateria(materia);
+        
+        for (AlunoDomain x : listaAlunos){
+            int faltasAluno = 0;
+            int presencasAluno = 0;
+            
+            for(FaltaDomain somador : listaFaltas)
+            {
+                if (somador.getIdAluno_Falta() == x.getIdAluno()){
+                    faltasAluno += somador.getFaltas();
+                    presencasAluno += somador.getPresencas();
+                }   
+            }
+            
+            System.out.println("Aluno: " + x.getNome());
+            System.out.println("Faltas: " + faltasAluno 
+                             + " /Presenças: " + presencasAluno);
+            System.out.println("\n----------------------");
+        }
     }
 
     @Override
     public void listarFaltasPesqDia() {
-       /* alunoSQL.setConnection(connection);
+        faltaSQL.setConnection(connection);
+        alunoSQL.setConnection(connection);
+        materiaSQL.setConnection(connection);
         
-        System.out.println("Digite uma ID: ");
-        aluno.setIdAluno(scan.nextInt());
-        alunoSQL.buscar(aluno);
+        System.out.println("Insira o dia das Faltas:");
+        falta.setDiaFalta(scan.nextInt());
+        List<FaltaDomain> listaFaltas = faltaSQL.buscarFaltaPorDia(falta);
+        List<AlunoDomain> listaAlunos = alunoSQL.listar();
+        List<MateriaDomain> listaMaterias = materiaSQL.listar();
         
-        System.out.println("Informe o nome: ");
-        aluno.setNome(scan.next());
+        System.out.println("Dia: " + falta.getDiaFalta());
         
-        alunoSQL.alterar(aluno);*/
+        
+        for (FaltaDomain x : listaFaltas){
+            for (AlunoDomain y : listaAlunos){
+                if (x.getIdAluno_Falta() == y.getIdAluno()) {
+                    System.out.println("Aluno: " + y.getNome());
+                    System.out.println("Faltas: " + x.getFaltas());
+                    System.out.println("\n----------------------");
+                }
+            }
+        }
     }
-
 }
 

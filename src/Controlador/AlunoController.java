@@ -55,7 +55,6 @@ public class AlunoController implements AlunoView {
         aluno.setNome(scan.next());
         
         alunoSQL.inserir(aluno);
-        database.desconectar(connection);
     }
 
     @Override
@@ -66,7 +65,6 @@ public class AlunoController implements AlunoView {
             System.out.println("ID: " + a.getIdAluno());
             System.out.println("Nome: " + a.getNome());
         });
-        database.desconectar(connection);
     }
 
     @Override
@@ -89,7 +87,6 @@ public class AlunoController implements AlunoView {
         }else{
             System.out.println("Comando Incorreto.");
         }
-        database.desconectar(connection);
     }
 
     @Override
@@ -104,7 +101,6 @@ public class AlunoController implements AlunoView {
         aluno.setNome(scan.next());
         
         alunoSQL.alterar(aluno);
-        database.desconectar(connection);
     } 
 }
 

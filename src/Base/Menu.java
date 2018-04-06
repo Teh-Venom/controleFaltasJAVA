@@ -14,7 +14,7 @@ class Menu {
     int scanResult;
     void menuInicial(){
         while (scanResult!=4) {
-            System.out.println("Sistema de controle de Faltas/n");
+            System.out.println("Sistema de controle de Faltas");
             System.out.println("(1) Gerenciar Matérias");
             System.out.println("(2) Gerenciar Aluno");
             System.out.println("(3) Gerenciar Faltas");
@@ -31,6 +31,7 @@ class Menu {
             if (scanResult==3) {
                 faltacontrol.menuFalta();
             }
+            
         }
     }
 }
